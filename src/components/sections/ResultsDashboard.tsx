@@ -31,6 +31,172 @@ function StatCard({
   );
 }
 
+/** SVG Possibility Cone — fan-shaped visualization of certainty vs. uncertainty */
+function PossibilityCone({
+  VR,
+  CW,
+  EQI,
+  EQI_adj,
+  ciColor,
+}: {
+  VR: number;
+  CW: number;
+  EQI: number;
+  EQI_adj: number;
+  ciColor: string;
+}) {
+  const width = 400;
+  const height = 140;
+  const originX = 20;
+  const originY = height / 2;
+  const endX = width - 20;
+  const visibleX = originX + (endX - originX) * Math.min(VR, 1);
+
+  // Cone spread based on experience quality — wider when uncertain
+  const visibleSpread = 16 + (1 - VR) * 10;
+  const fullSpread = 16 + (CW / 100) * 50;
+
+  return (
+    <div className="rounded-2xl border border-white/8 bg-white/[0.03] p-4">
+      <div className="flex items-center justify-between mb-3">
+        <div className="text-[0.65rem] font-medium uppercase tracking-[0.18em] text-zinc-500">
+          Possibility Cone
+        </div>
+        <div className="flex items-center gap-3 text-[0.65rem] text-zinc-500">
+          <span className="flex items-center gap-1">
+            <span className="inline-block h-2 w-2 rounded-full" style={{ backgroundColor: ciColor }} />
+            Visible ({(VR * 100).toFixed(0)}%)
+          </span>
+          <span className="flex items-center gap-1">
+            <span className="inline-block h-2 w-2 rounded-full bg-zinc-600" />
+            Beyond horizon ({CW.toFixed(0)}%)
+          </span>
+        </div>
+      </div>
+
+      <svg
+        viewBox={`0 0 ${width} ${height}`}
+        className="w-full"
+        style={{ maxHeight: 140 }}
+      >
+        {/* Grid lines */}
+        {[0.25, 0.5, 0.75, 1].map((frac) => (
+          <line
+            key={frac}
+            x1={originX + (endX - originX) * frac}
+            y1={10}
+            x2={originX + (endX - originX) * frac}
+            y2={height - 10}
+            stroke="rgba(255,255,255,0.04)"
+            strokeWidth={1}
+          />
+        ))}
+
+        {/* Uncertainty cone (beyond visibility) */}
+        <motion.polygon
+          initial={false}
+          animate={{
+            points: `${visibleX},${originY - visibleSpread} ${endX},${originY - fullSpread} ${endX},${originY + fullSpread} ${visibleX},${originY + visibleSpread}`,
+          }}
+          transition={{ type: "spring", stiffness: 60, damping: 18 }}
+          fill="rgba(113,113,122,0.12)"
+          stroke="rgba(113,113,122,0.25)"
+          strokeWidth={1}
+          strokeDasharray="4 3"
+        />
+
+        {/* Visible cone */}
+        <motion.polygon
+          initial={false}
+          animate={{
+            points: `${originX},${originY} ${visibleX},${originY - visibleSpread} ${visibleX},${originY + visibleSpread}`,
+          }}
+          transition={{ type: "spring", stiffness: 60, damping: 18 }}
+          fill={`${ciColor}18`}
+          stroke={ciColor}
+          strokeWidth={1.5}
+        />
+
+        {/* Visibility horizon line */}
+        <motion.line
+          initial={false}
+          animate={{ x1: visibleX, x2: visibleX }}
+          y1={6}
+          y2={height - 6}
+          stroke="rgba(251,191,36,0.5)"
+          strokeWidth={1.5}
+          strokeDasharray="3 2"
+          transition={{ type: "spring", stiffness: 60, damping: 18 }}
+        />
+
+        {/* Origin dot */}
+        <circle cx={originX} cy={originY} r={4} fill={ciColor} />
+
+        {/* EQI marker in visible zone */}
+        <motion.circle
+          initial={false}
+          animate={{
+            cx: originX + (visibleX - originX) * 0.65,
+            cy: originY - visibleSpread * ((EQI - 50) / 100),
+          }}
+          r={3}
+          fill={ciColor}
+          transition={{ type: "spring", stiffness: 80, damping: 18 }}
+        />
+
+        {/* Adjusted EQI marker (cone-corrected) */}
+        <motion.circle
+          initial={false}
+          animate={{
+            cx: visibleX + (endX - visibleX) * 0.5,
+            cy: originY - fullSpread * ((EQI_adj - 50) / 100),
+          }}
+          r={3}
+          fill="rgba(161,161,170,0.6)"
+          stroke="rgba(161,161,170,0.4)"
+          strokeWidth={1}
+          transition={{ type: "spring", stiffness: 80, damping: 18 }}
+        />
+
+        {/* Center axis */}
+        <line
+          x1={originX}
+          y1={originY}
+          x2={endX}
+          y2={originY}
+          stroke="rgba(255,255,255,0.06)"
+          strokeWidth={1}
+        />
+
+        {/* Labels */}
+        <text x={originX} y={height - 2} fill="rgba(161,161,170,0.5)" fontSize={9} fontFamily="var(--font-inter)">
+          Now
+        </text>
+        <motion.text
+          initial={false}
+          animate={{ x: visibleX }}
+          y={height - 2}
+          fill="rgba(251,191,36,0.6)"
+          fontSize={9}
+          fontFamily="var(--font-inter)"
+          textAnchor="middle"
+          transition={{ type: "spring", stiffness: 60, damping: 18 }}
+        >
+          Horizon
+        </motion.text>
+        <text x={endX} y={height - 2} fill="rgba(161,161,170,0.3)" fontSize={9} fontFamily="var(--font-inter)" textAnchor="end">
+          End of runway
+        </text>
+      </svg>
+
+      <div className="mt-2 flex justify-between text-[0.65rem] text-zinc-600">
+        <span>EQI {EQI.toFixed(1)} → Adjusted {EQI_adj.toFixed(1)}</span>
+        <span>Cone pulls {CW > 30 ? "strongly" : "mildly"} toward equilibrium</span>
+      </div>
+    </div>
+  );
+}
+
 interface ResultsDashboardProps {
   metrics: CampaignMetrics;
   pulseKey: number;
@@ -43,9 +209,6 @@ export default function ResultsDashboard({
   const meta = VERDICT_META[metrics.verdict];
   const gaugeColor = getContinuityColor(metrics.CI);
   const deltaTone = metrics.delta < 0 ? "#fb7185" : "#22d3ee";
-  const bufferRatio = metrics.DRT === 0 ? 0 : (metrics.DRT - metrics.EDI) / metrics.DRT;
-  const bufferFill = Math.min(100, Math.abs(bufferRatio) * 100);
-  const bufferColor = bufferRatio < 0 ? "#fb7185" : gaugeColor;
   const rsFill = `${metrics.RS}%`;
 
   return (
@@ -107,55 +270,50 @@ export default function ResultsDashboard({
               Delta {metrics.delta >= 0 ? "+" : ""}
               {metrics.delta.toFixed(2)}
             </span>
+            <span className="rounded-full border border-amber-500/20 bg-amber-500/5 px-3 py-1 text-xs text-amber-400">
+              Cone {metrics.CW.toFixed(0)}%
+            </span>
           </div>
         </div>
       </div>
 
-      <div>
-        <div className="mb-2 flex items-center justify-between text-xs">
-          <span className="font-medium uppercase tracking-[0.18em] text-zinc-500">
-            Uncertainty Buffer
-          </span>
-          <span className="tabular-nums" style={{ color: bufferColor }}>
-            {bufferRatio >= 0 ? "+" : ""}
-            {(bufferRatio * 100).toFixed(1)}%
-          </span>
-        </div>
-        <div className="relative h-3 w-full overflow-hidden rounded-full bg-white/8">
-          <motion.div
-            className="absolute inset-y-0 left-0 rounded-full"
-            initial={false}
-            animate={{ width: `${bufferFill}%` }}
-            transition={{ type: "spring", stiffness: 80, damping: 18 }}
-            style={{ backgroundColor: bufferColor }}
-          />
-        </div>
-      </div>
+      {/* ── Possibility Cone Visualization ── */}
+      <PossibilityCone
+        VR={metrics.VR}
+        CW={metrics.CW}
+        EQI={metrics.EQI}
+        EQI_adj={metrics.EQI_adj}
+        ciColor={gaugeColor}
+      />
 
+      {/* ── Stat Cards ── */}
       <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
         <StatCard
-          label="Remaining Turns (R)"
+          label="Remaining Runway (R)"
           value={metrics.R.toFixed(0)}
           hint="82 − level"
         />
         <StatCard
-          label="Effective Stagnation (EDI)"
-          value={metrics.EDI.toFixed(2)}
-          hint="Stagnation weighted by confidence and decay"
+          label="Experience Quality (EQI)"
+          value={metrics.EQI.toFixed(1)}
+          hint="Net experience score normalised to 0–100"
+          accent={metrics.EQI >= 50 ? "#34d399" : "#fb7185"}
         />
         <StatCard
-          label="Dynamic Threshold (DRT)"
-          value={metrics.DRT.toFixed(2)}
-          hint="End-game bar after resilience and sensitivity"
+          label="Cone Width (CW)"
+          value={`${metrics.CW.toFixed(1)}%`}
+          hint="Uncertainty beyond the visibility horizon"
+          accent="#fbbf24"
         />
         <StatCard
           label="Delta (Δ)"
           value={`${metrics.delta >= 0 ? "+" : ""}${metrics.delta.toFixed(2)}`}
-          hint="Threshold minus effective stagnation"
+          hint="Threshold minus experience-adjusted weight"
           accent={deltaTone}
         />
       </div>
 
+      {/* ── Resilience Score ── */}
       <div className="rounded-2xl border border-white/8 bg-white/[0.03] p-4">
         <div className="flex items-center justify-between gap-3">
           <div>

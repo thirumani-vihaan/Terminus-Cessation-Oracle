@@ -19,20 +19,31 @@ import { useSliderLogic } from "@/hooks/useSliderLogic";
 
 const formula = [
   { k: "R", v: "82 − L" },
-  { k: "T", v: "R / 2" },
-  { k: "TOP", v: "R · 0.07" },
-  { k: "UDF", v: "1 / (1 + log₁₀(S + 1))" },
-  { k: "EDI", v: "S · C^1.15 · UDF" },
-  { k: "RS", v: "avg(6 context stats)" },
+  { k: "NES", v: "(H·Hc + M·Mc − S·Sc) / Σc" },
+  { k: "EQI", v: "(NES + 100) / 2" },
+  { k: "VR", v: "FV / R" },
+  { k: "CW", v: "(1 − VR) × 100" },
+  { k: "EQI′", v: "EQI + (50 − EQI)·CW·0.6" },
   { k: "DRT", v: "T + TOP − RB − SB" },
-  { k: "Δ", v: "DRT − EDI" },
+  { k: "Δ", v: "DRT − (100 − EQI′)" },
   { k: "CI", v: "clamp(50 + Δ · 2)" },
 ];
 
 export default function Home() {
   const [level, setLevel] = useState(DEFAULTS.level);
-  const [stagnation, setStagnation] = useState(DEFAULTS.stagnation);
-  const [confidence, setConfidence] = useState(DEFAULTS.confidence);
+
+  /* Experience Projection */
+  const [expectedHappiness, setExpectedHappiness] = useState(DEFAULTS.expectedHappiness);
+  const [expectedSuffering, setExpectedSuffering] = useState(DEFAULTS.expectedSuffering);
+  const [expectedMeaning, setExpectedMeaning] = useState(DEFAULTS.expectedMeaning);
+  const [happinessConf, setHappinessConf] = useState(DEFAULTS.happinessConfidence);
+  const [sufferingConf, setSufferingConf] = useState(DEFAULTS.sufferingConfidence);
+  const [meaningConf, setMeaningConf] = useState(DEFAULTS.meaningConfidence);
+
+  /* Visibility Horizon */
+  const [futureVisibility, setFutureVisibility] = useState(DEFAULTS.futureVisibility);
+
+  /* Resilience Context */
   const [morale, setMorale] = useState(DEFAULTS.morale);
   const [ally, setAlly] = useState(DEFAULTS.ally);
   const [resources, setResources] = useState(DEFAULTS.resources);
@@ -40,6 +51,7 @@ export default function Home() {
   const [versatility, setVersatility] = useState(DEFAULTS.versatility);
   const [rngEvents, setRngEvents] = useState(DEFAULTS.rngEvents);
   const [sensitivity, setSensitivity] = useState(DEFAULTS.sensitivity);
+
   const [confidenceModalOpen, setConfidenceModalOpen] = useState(false);
   const [pulseKey, setPulseKey] = useState(0);
   const didMount = useRef(false);
@@ -53,8 +65,13 @@ export default function Home() {
     () =>
       calculateCampaignMetrics({
         level,
-        stagnation,
-        confidence,
+        expectedHappiness,
+        expectedSuffering,
+        expectedMeaning,
+        happinessConfidence: happinessConf,
+        sufferingConfidence: sufferingConf,
+        meaningConfidence: meaningConf,
+        futureVisibility,
         morale,
         ally,
         resources,
@@ -65,8 +82,13 @@ export default function Home() {
       }),
     [
       level,
-      stagnation,
-      confidence,
+      expectedHappiness,
+      expectedSuffering,
+      expectedMeaning,
+      happinessConf,
+      sufferingConf,
+      meaningConf,
+      futureVisibility,
       morale,
       ally,
       resources,
@@ -86,8 +108,13 @@ export default function Home() {
     didMount.current = true;
   }, [
     level,
-    stagnation,
-    confidence,
+    expectedHappiness,
+    expectedSuffering,
+    expectedMeaning,
+    happinessConf,
+    sufferingConf,
+    meaningConf,
+    futureVisibility,
     morale,
     ally,
     resources,
@@ -99,8 +126,13 @@ export default function Home() {
 
   const handleReset = useCallback(() => {
     setLevel(DEFAULTS.level);
-    setStagnation(DEFAULTS.stagnation);
-    setConfidence(DEFAULTS.confidence);
+    setExpectedHappiness(DEFAULTS.expectedHappiness);
+    setExpectedSuffering(DEFAULTS.expectedSuffering);
+    setExpectedMeaning(DEFAULTS.expectedMeaning);
+    setHappinessConf(DEFAULTS.happinessConfidence);
+    setSufferingConf(DEFAULTS.sufferingConfidence);
+    setMeaningConf(DEFAULTS.meaningConfidence);
+    setFutureVisibility(DEFAULTS.futureVisibility);
     setMorale(DEFAULTS.morale);
     setAlly(DEFAULTS.ally);
     setResources(DEFAULTS.resources);
@@ -169,8 +201,13 @@ export default function Home() {
           <div className="flex flex-col gap-6">
             <ControlPanel
               level={level}
-              stagnation={stagnation}
-              confidence={confidence}
+              expectedHappiness={expectedHappiness}
+              expectedSuffering={expectedSuffering}
+              expectedMeaning={expectedMeaning}
+              happinessConf={happinessConf}
+              sufferingConf={sufferingConf}
+              meaningConf={meaningConf}
+              futureVisibility={futureVisibility}
               morale={morale}
               ally={ally}
               resources={resources}
@@ -179,12 +216,13 @@ export default function Home() {
               rngEvents={rngEvents}
               sensitivity={sensitivity}
               onLevelChange={(value) => setLevel(clampInt(value, 1, 100))}
-              onStagnationChange={(value) =>
-                setStagnation(clampDecimal(Math.round(value * 2) / 2, 0, 80))
-              }
-              onConfidenceChange={(value) =>
-                setConfidence(normalizeConfidence(value))
-              }
+              onExpectedHappinessChange={(value) => setExpectedHappiness(clampInt(value, 0, 100))}
+              onExpectedSufferingChange={(value) => setExpectedSuffering(clampInt(value, 0, 100))}
+              onExpectedMeaningChange={(value) => setExpectedMeaning(clampInt(value, 0, 100))}
+              onHappinessConfChange={(value) => setHappinessConf(normalizeConfidence(value))}
+              onSufferingConfChange={(value) => setSufferingConf(normalizeConfidence(value))}
+              onMeaningConfChange={(value) => setMeaningConf(normalizeConfidence(value))}
+              onFutureVisibilityChange={(value) => setFutureVisibility(clampInt(value, 1, 50))}
               onMoraleChange={(value) => setMorale(clampInt(value, 0, 100))}
               onAllyChange={(value) => setAlly(clampInt(value, 0, 100))}
               onResourcesChange={(value) =>
@@ -213,7 +251,7 @@ export default function Home() {
         <footer className="border-t border-white/8 px-6 py-10 text-center">
           <p className="text-xs text-zinc-600">
             Terminus · a cessation decision oracle. All figures are
-            in-world game mechanics.
+            in-world mechanics.
           </p>
           <p className="mt-2 text-[0.65rem] text-zinc-700">
             Head sculpture: Lee Perry-Smith (Infinite-Realities) · CC BY 3.0.

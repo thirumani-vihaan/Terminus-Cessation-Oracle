@@ -2,7 +2,7 @@
 
 import * as Slider from "@radix-ui/react-slider";
 import { AnimatePresence, motion } from "framer-motion";
-import { ChevronDown, HelpCircle, Play, RotateCcw } from "lucide-react";
+import { ChevronDown, Eye, HelpCircle, Play, RotateCcw } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 
@@ -92,10 +92,76 @@ function SliderField({
   );
 }
 
+/** Paired dimension + confidence slider group */
+function ExperienceGroup({
+  dimensionLabel,
+  dimensionHint,
+  dimensionTooltip,
+  dimensionValue,
+  dimensionMin,
+  dimensionMax,
+  dimensionStep,
+  onDimensionChange,
+  dimensionAccent,
+  confLabel,
+  confHint,
+  confValue,
+  onConfChange,
+  confAccent,
+}: {
+  dimensionLabel: string;
+  dimensionHint: string;
+  dimensionTooltip?: string;
+  dimensionValue: number;
+  dimensionMin: number;
+  dimensionMax: number;
+  dimensionStep: number;
+  onDimensionChange: (value: number) => void;
+  dimensionAccent: string;
+  confLabel: string;
+  confHint: string;
+  confValue: number;
+  onConfChange: (value: number) => void;
+  confAccent: string;
+}) {
+  return (
+    <div className="rounded-2xl border border-white/6 bg-white/[0.02] p-4 space-y-4">
+      <SliderField
+        label={dimensionLabel}
+        hint={dimensionHint}
+        tooltip={dimensionTooltip}
+        value={dimensionValue}
+        display={`${Math.round(dimensionValue)}`}
+        min={dimensionMin}
+        max={dimensionMax}
+        step={dimensionStep}
+        onChange={onDimensionChange}
+        accent={dimensionAccent}
+      />
+      <SliderField
+        label={confLabel}
+        hint={confHint}
+        value={confValue}
+        display={confValue.toFixed(2)}
+        min={0}
+        max={0.99}
+        step={0.01}
+        onChange={onConfChange}
+        accent={confAccent}
+      />
+    </div>
+  );
+}
+
 interface ControlPanelProps {
   level: number;
-  stagnation: number;
-  confidence: number;
+  expectedHappiness: number;
+  expectedSuffering: number;
+  expectedMeaning: number;
+  happinessConf: number;
+  sufferingConf: number;
+  meaningConf: number;
+  futureVisibility: number;
   morale: number;
   ally: number;
   resources: number;
@@ -104,8 +170,13 @@ interface ControlPanelProps {
   rngEvents: number;
   sensitivity: number;
   onLevelChange: (value: number) => void;
-  onStagnationChange: (value: number) => void;
-  onConfidenceChange: (value: number) => void;
+  onExpectedHappinessChange: (value: number) => void;
+  onExpectedSufferingChange: (value: number) => void;
+  onExpectedMeaningChange: (value: number) => void;
+  onHappinessConfChange: (value: number) => void;
+  onSufferingConfChange: (value: number) => void;
+  onMeaningConfChange: (value: number) => void;
+  onFutureVisibilityChange: (value: number) => void;
   onMoraleChange: (value: number) => void;
   onAllyChange: (value: number) => void;
   onResourcesChange: (value: number) => void;
@@ -123,10 +194,22 @@ const descriptorForSensitivity = (value: number) => {
   return "Aggressive";
 };
 
+const descriptorForVisibility = (value: number) => {
+  if (value <= 5) return "Near-blind";
+  if (value <= 15) return "Short-range";
+  if (value <= 30) return "Mid-range";
+  return "Far-sighted";
+};
+
 export default function ControlPanel({
   level,
-  stagnation,
-  confidence,
+  expectedHappiness,
+  expectedSuffering,
+  expectedMeaning,
+  happinessConf,
+  sufferingConf,
+  meaningConf,
+  futureVisibility,
   morale,
   ally,
   resources,
@@ -135,8 +218,13 @@ export default function ControlPanel({
   rngEvents,
   sensitivity,
   onLevelChange,
-  onStagnationChange,
-  onConfidenceChange,
+  onExpectedHappinessChange,
+  onExpectedSufferingChange,
+  onExpectedMeaningChange,
+  onHappinessConfChange,
+  onSufferingConfChange,
+  onMeaningConfChange,
+  onFutureVisibilityChange,
   onMoraleChange,
   onAllyChange,
   onResourcesChange,
@@ -163,7 +251,7 @@ export default function ControlPanel({
             Input panel
           </h2>
           <p className="mt-1 text-xs uppercase tracking-[0.2em] text-zinc-500">
-            Calibrate your run
+            Project the future
           </p>
         </div>
 
@@ -180,10 +268,11 @@ export default function ControlPanel({
         </button>
       </div>
 
+      {/* ── Level ── */}
       <div className="space-y-5">
         <SliderField
           label="Character Level"
-          hint="Your current level/age in the playthrough. Higher levels reduce the remaining runway."
+          hint="Your current level. Higher levels reduce the remaining runway ahead."
           value={level}
           display={`${Math.round(level)}`}
           min={1}
@@ -192,32 +281,91 @@ export default function ControlPanel({
           onChange={onLevelChange}
           accent="#22d3ee"
         />
-
-        <SliderField
-          label="Projected Stagnation Period"
-          hint="How long the current build is expected to feel stagnant."
-          value={stagnation}
-          display={stagnation.toFixed(1)}
-          min={0}
-          max={80}
-          step={0.5}
-          onChange={onStagnationChange}
-          accent="#a78bfa"
-        />
-
-        <SliderField
-          label="Certainty"
-          hint="Confidence in that projection. The epistemic cap still snaps back above 0.90."
-          value={confidence}
-          display={confidence.toFixed(2)}
-          min={0}
-          max={0.99}
-          step={0.01}
-          onChange={onConfidenceChange}
-          accent="#22d3ee"
-        />
       </div>
 
+      {/* ── Experience Projection ── */}
+      <div>
+        <div className="mb-4 flex items-center gap-2">
+          <span className="text-xs font-medium uppercase tracking-[0.22em] text-zinc-400">
+            Future Experience Projection
+          </span>
+        </div>
+        <div className="grid gap-4 md:grid-cols-3">
+          <ExperienceGroup
+            dimensionLabel="Expected Happiness"
+            dimensionHint="Projected well-being and fulfillment over the visible horizon."
+            dimensionTooltip="How much joy and satisfaction do you expect going forward?"
+            dimensionValue={expectedHappiness}
+            dimensionMin={0}
+            dimensionMax={100}
+            dimensionStep={1}
+            onDimensionChange={onExpectedHappinessChange}
+            dimensionAccent="#34d399"
+            confLabel="Confidence"
+            confHint="How certain is this happiness forecast?"
+            confValue={happinessConf}
+            onConfChange={onHappinessConfChange}
+            confAccent="#34d399"
+          />
+          <ExperienceGroup
+            dimensionLabel="Expected Suffering"
+            dimensionHint="Projected hardship, pain, and grinding decay ahead."
+            dimensionTooltip="How much suffering and anguish do you foresee?"
+            dimensionValue={expectedSuffering}
+            dimensionMin={0}
+            dimensionMax={100}
+            dimensionStep={1}
+            onDimensionChange={onExpectedSufferingChange}
+            dimensionAccent="#fb7185"
+            confLabel="Confidence"
+            confHint="How certain is this suffering forecast?"
+            confValue={sufferingConf}
+            onConfChange={onSufferingConfChange}
+            confAccent="#fb7185"
+          />
+          <ExperienceGroup
+            dimensionLabel="Expected Meaning"
+            dimensionHint="Projected purpose, significance, and reason to persist."
+            dimensionTooltip="How much meaning and purpose do you see in the path ahead?"
+            dimensionValue={expectedMeaning}
+            dimensionMin={0}
+            dimensionMax={100}
+            dimensionStep={1}
+            onDimensionChange={onExpectedMeaningChange}
+            dimensionAccent="#a78bfa"
+            confLabel="Confidence"
+            confHint="How certain is this meaning forecast?"
+            confValue={meaningConf}
+            onConfChange={onMeaningConfChange}
+            confAccent="#a78bfa"
+          />
+        </div>
+      </div>
+
+      {/* ── Future Visibility ── */}
+      <div className="rounded-2xl border border-white/6 bg-white/[0.02] p-4">
+        <SliderField
+          label="Future Visibility"
+          hint="How far into the future can you reasonably predict? Low visibility expands the possibility cone, pulling the verdict toward equilibrium."
+          tooltip="A major metric — determines how much of your remaining runway is 'visible' for forecasting."
+          value={futureVisibility}
+          display={`${Math.round(futureVisibility)}`}
+          descriptor={descriptorForVisibility(futureVisibility)}
+          min={1}
+          max={50}
+          step={1}
+          onChange={onFutureVisibilityChange}
+          accent="#fbbf24"
+        />
+        <div className="mt-3 flex items-center gap-2 text-[0.65rem] text-zinc-600">
+          <Eye className="h-3 w-3" />
+          <span>
+            Visibility ratio: {((futureVisibility / Math.max(MAX_LEVEL_DISPLAY - level, 1)) * 100).toFixed(0)}% of remaining runway
+          </span>
+        </div>
+      </div>
+
+      {/* ── Advanced Context ── */}
       <div className="space-y-3">
         <button
           type="button"
@@ -251,8 +399,8 @@ export default function ControlPanel({
                 <div className="space-y-4">
                   <SliderField
                     label="Morale"
-                    tooltip="Morale affects your character's current will to continue."
-                    hint="Current satisfaction with the playthrough."
+                    tooltip="Morale affects your current will to continue."
+                    hint="Current will to persist."
                     value={morale}
                     display={`${morale.toFixed(0)}`}
                     min={0}
@@ -263,8 +411,8 @@ export default function ControlPanel({
                   />
                   <SliderField
                     label="Ally Strength"
-                    tooltip="Allies and guild support can make a stubborn run easier to sustain."
-                    hint="Social and guild support."
+                    tooltip="External support networks that sustain your existence."
+                    hint="Social and external support."
                     value={ally}
                     display={`${ally.toFixed(0)}`}
                     min={0}
@@ -275,8 +423,8 @@ export default function ControlPanel({
                   />
                   <SliderField
                     label="Resource Reserves"
-                    tooltip="Resources soften the impact of bad luck and long stretches of stagnation."
-                    hint="Gold, items, mana, and other reserves."
+                    tooltip="Resources soften the impact of hardship and long stretches of suffering."
+                    hint="Accumulated reserves and assets."
                     value={resources}
                     display={`${resources.toFixed(0)}`}
                     min={0}
@@ -301,9 +449,9 @@ export default function ControlPanel({
 
                 <div className="space-y-4">
                   <SliderField
-                    label="Build Versatility"
-                    tooltip="Versatility keeps a current player flexible when the run shifts."
-                    hint="Ability to pivot within the current player setup."
+                    label="Versatility"
+                    tooltip="Versatility keeps the current path flexible when circumstances shift."
+                    hint="Ability to adapt without ending."
                     value={versatility}
                     display={`${versatility.toFixed(0)}`}
                     min={0}
@@ -314,7 +462,7 @@ export default function ControlPanel({
                   />
                   <SliderField
                     label="World RNG Events"
-                    tooltip="External lucky or unlucky events can dramatically alter the playthrough path."
+                    tooltip="External lucky or unlucky events can dramatically alter the path."
                     hint="External lucky or unlucky events."
                     value={rngEvents}
                     display={`${rngEvents.toFixed(0)}`}
@@ -363,3 +511,6 @@ export default function ControlPanel({
     </motion.div>
   );
 }
+
+/** Used inline for the visibility ratio display. */
+const MAX_LEVEL_DISPLAY = 82;

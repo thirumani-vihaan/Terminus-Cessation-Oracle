@@ -1,10 +1,10 @@
 # Terminus — Cessation Oracle
 
-> You are standing at the threshold of a stagnant existence. The path forward has grown heavy, silent, and decaying.
+> You are standing at the edge of an uncertain future. The path forward is shrouded — fragments of joy, stretches of suffering, and threads of meaning interweave beyond the horizon you can see.
 >
-> There is no turning back. There are no second chances, no restarts, and no save points. If you choose to end it, your journey is permanently over. Do you continue to persist in the creeping decay, or do you sever the thread?
+> There is no turning back. There are no second chances, no restarts, and no reprieves. If you choose to end it, the thread is severed forever. Do you continue into the unknown, or do you accept permanent finality?
 >
-> **Terminus** is the Cessation Oracle. By assessing the critical parameters of your current existence, it helps you decide whether to continue your journey or terminate it forever. Continuing is the default path. But when the stagnation of your current path becomes too heavy, this oracle calculates whether you should pull the plug and accept permanent finality.
+> **Terminus** is the Cessation Oracle. By projecting your expected happiness, suffering, and meaning across the visible horizon — and modelling the expanding uncertainty beyond it — the oracle calculates whether you should continue or sever the thread permanently. Continuing is the default path. But when the projected suffering eclipses all meaning, and the cone narrows toward darkness, the oracle speaks.
 
 Built with **Next.js 16 (App Router)** + **TypeScript**, a **React Three Fiber** scene of drifting greyscale busts that watch your decisions, and **Framer Motion** transitions throughout.
 
@@ -55,18 +55,20 @@ npm run dev      # http://localhost:3000
 
 ## The Lore of Cessation
 
-Every journey reaches a point of friction. The oracle quantifies this dilemma:
+Every existence reaches a crossroads. The oracle does not measure stagnation — it projects experience across three dimensions, then models what lies beyond the edge of sight:
 
 ```mermaid
 flowchart LR
     subgraph Inputs
-        A1[Current Age / Level]
-        A2[Projected Stagnation]
-        A3[Certainty]
-        A4[Advanced Context<br/>6 resilience stats + End Sensitivity]
+        A1[Character Level]
+        A2[Expected Happiness + Confidence]
+        A3[Expected Suffering + Confidence]
+        A4[Expected Meaning + Confidence]
+        A5[Future Visibility]
+        A6[Advanced Context<br/>6 resilience stats + End Sensitivity]
     end
 
-    A1 & A2 & A3 & A4 --> ENGINE[calculateCampaignMetrics]
+    A1 & A2 & A3 & A4 & A5 & A6 --> ENGINE[calculateCampaignMetrics]
     ENGINE --> CI[Continuity Index 0–100]
     CI --> V{Verdict}
     V -->|CI &gt; 70| KEEP[Continue Existence]
@@ -78,20 +80,32 @@ flowchart LR
 
 ## The Mathematical Engine
 
-The equations governing your finality are defined in [`src/lib/calculations.ts`](src/lib/calculations.ts). They weigh persistence against termination:
+The equations governing finality are defined in [`src/lib/calculations.ts`](src/lib/calculations.ts). They weigh projected experience against the expanding uncertainty of an unknowable future:
 
 ```mermaid
 flowchart TD
-    L[Level] --> R["R = 82 − Level<br/>(remaining turns)"]
+    L[Level] --> R["R = 82 − Level<br/>(remaining runway)"]
     R --> T["T = R / 2<br/>(neutral 50/50 prior)"]
     R --> TOP["TOP = R × 0.07<br/>(Temporal Optionality Premium)"]
 
-    S[Stagnation] --> UDF["UDF = 1 / (1 + log10(S + 1))<br/>(uncertainty decay)"]
-    S --> EDI
-    C[Certainty] --> EDI["EDI = S × C^1.15 × UDF<br/>(Effective Stagnation)"]
-    UDF --> EDI
+    H[Expected Happiness] --> NES
+    S[Expected Suffering] --> NES
+    M[Expected Meaning] --> NES
+    Hc[Happiness Conf] --> NES
+    Sc[Suffering Conf] --> NES
+    Mc[Meaning Conf] --> NES
+    NES["NES = (H·Hc + M·Mc − S·Sc) / (Hc+Mc+Sc)<br/>(Net Experience Score)"]
 
-    M[6 context stats] --> RS["RS = avg(morale, ally, resources,<br/>stamina, versatility, rng)"]
+    NES --> EQI["EQI = clamp((NES + 100) / 2, 0, 100)<br/>(Experience Quality Index)"]
+
+    FV[Future Visibility] --> VR["VR = FV / R<br/>(Visibility Ratio)"]
+    R --> VR
+    VR --> CW["CW = (1 − VR) × 100<br/>(Cone Width)"]
+
+    EQI --> EQIadj["EQI′ = EQI + (50 − EQI) · CW · 0.6<br/>(Cone-Adjusted EQI)"]
+    CW --> EQIadj
+
+    CTX[6 context stats] --> RS["RS = avg(morale, ally, resources,<br/>stamina, versatility, rng)"]
     RS --> RB["Resilience Bonus = (RS / 100) × 10"]
     Sen[End Sensitivity] --> SB["Sensitivity Bias = (Sen / 100) × 15"]
 
@@ -99,53 +113,68 @@ flowchart TD
     TOP --> DRT
     RB --> DRT
     SB --> DRT
-    DRT["DRT = T + TOP − Resilience Bonus − Sensitivity Bias<br/>(Dynamic End Threshold)"]
+    DRT["DRT = T + TOP − RB − SB<br/>(Dynamic End Threshold)"]
 
-    DRT --> D["Delta = DRT − EDI"]
-    EDI --> D
+    DRT --> D["Delta = DRT − (100 − EQI′)"]
+    EQIadj --> D
     D --> CIc["CI = clamp(50 + Delta × 2, 0, 100)"]
-    CIc --> VR{Verdict}
+    CIc --> VR2{Verdict}
 ```
 
-| Symbol | Name | Formula | Meaning in the Void |
+| Symbol | Name | Formula | Meaning |
 | --- | --- | --- | --- |
-| `R` | Remaining runway | `82 − Level` | The remaining timeline before natural end occurs. |
-| `T` | Neutral threshold | `R / 2` | The neutral point where persistence and letting go are equal. |
-| `TOP` | Temporal Optionality Premium | `R × 0.07` | The value of continuing (longer lifespans allow more unique experiences). |
-| `UDF` | Uncertainty Decay Factor | `1 / (1 + log10(S + 1))` | Natural decay of your forecasts over extended stagnation. |
-| `EDI` | Effective Stagnation Weight | `S × C^1.15 × UDF` | The felt weight of your current stagnation. |
-| `RS` | Resilience Score | `avg` of the 6 context stats | How well you are supported in resisting termination. |
-| `DRT` | Dynamic End Threshold | `T + TOP − ResilienceBonus − SensitivityBias` | The point at which the decay becomes statistically terminal. |
-| `Δ` | Delta (core metric) | `DRT − EDI` | The mathematical gap between continuing and terminating. |
-| `CI` | Continuity Index | `clamp(50 + Δ × 2, 0, 100)` | The overall rating of your run's survivability. |
+| `R` | Remaining runway | `82 − Level` | The timeline remaining before natural end. |
+| `T` | Neutral threshold | `R / 2` | The point where persisting and ending are equal. |
+| `TOP` | Temporal Optionality Premium | `R × 0.07` | The value of continuing (longer horizons allow more experience). |
+| `NES` | Net Experience Score | `(H·Hc + M·Mc − S·Sc) / Σc` | Confidence-weighted balance of projected experience. |
+| `EQI` | Experience Quality Index | `(NES + 100) / 2` | Normalised experience quality on a 0–100 scale. |
+| `VR` | Visibility Ratio | `FV / R` | What fraction of the remaining runway is "visible." |
+| `CW` | Cone Width | `(1 − VR) × 100` | Percentage uncertainty beyond the visibility horizon. |
+| `EQI′` | Cone-Adjusted EQI | `EQI + (50 − EQI) · CW · 0.6` | EQI pulled toward 50 by uncertainty — you can't be sure of what you can't see. |
+| `RS` | Resilience Score | `avg` of the 6 context stats | External support for resisting termination. |
+| `DRT` | Dynamic End Threshold | `T + TOP − RB − SB` | The threshold at which cessation becomes rational. |
+| `Δ` | Delta (core metric) | `DRT − (100 − EQI′)` | The gap between continuing and ending. |
+| `CI` | Continuity Index | `clamp(50 + Δ × 2, 0, 100)` | The overall rating of your path's viability. |
 
-Constants: `MAX_LEVEL = 82`, `TOP_MULTIPLIER = 0.07`, `RESILIENCE_SCALE = 10`, `SENSITIVITY_SCALE = 15`, `CERTAINTY_CAP = 0.90`.
+Constants: `MAX_LEVEL = 82`, `TOP_MULTIPLIER = 0.07`, `RESILIENCE_SCALE = 10`, `SENSITIVITY_SCALE = 15`, `CERTAINTY_CAP = 0.90`, `CONE_DAMPING = 0.60`.
 
-*Note: High resilience and higher End Sensitivity both lower the Dynamic End Threshold, shifting the balance closer to the permanent finality of ending the playthrough.*
+*Note: Low Future Visibility widens the Possibility Cone, which pulls the Continuity Index toward Equilibrium — preventing premature endings when you simply cannot see far enough ahead.*
 
 ---
 
 ## Inputs for Calibration
 
-### Core Sliders (Always Visible)
+### Core Inputs (Always Visible)
 
 | Input | Range | Default | Impact on the Oracle |
 | --- | --- | --- | --- |
-| Current Age / Level | 1–100 | 30 | Higher levels shrink the remaining timeline, reducing optionality. |
-| Projected Stagnation Period | 0–80 | 5 | The length of time you expect to wander in the desert of stagnation. |
-| Certainty | 0.00–0.90 | 0.50 | Dragging this above `0.90` triggers an epistemic-humility modal. Absolute certainty of the future is an illusion. |
+| Character Level | 1–100 | 30 | Higher levels shrink the remaining runway, reducing optionality. |
+
+### Future Experience Projection
+
+| Input | Range | Default | Impact on the Oracle |
+| --- | --- | --- | --- |
+| Expected Happiness | 0–100 | 60 | Projected well-being and fulfillment over the visible horizon. |
+| → Happiness Confidence | 0.00–0.90 | 0.50 | How certain this happiness forecast is. Capped at 0.90. |
+| Expected Suffering | 0–100 | 30 | Projected hardship, pain, and decay ahead. |
+| → Suffering Confidence | 0.00–0.90 | 0.50 | How certain this suffering forecast is. Capped at 0.90. |
+| Expected Meaning | 0–100 | 50 | Projected purpose, significance, and reason to persist. |
+| → Meaning Confidence | 0.00–0.90 | 0.50 | How certain this meaning forecast is. Capped at 0.90. |
+| Future Visibility | 1–50 | 15 | How far ahead you can reasonably see. Low visibility widens the Possibility Cone. |
+
+Dragging any confidence slider above `0.90` triggers an epistemic-humility modal — absolute certainty of the future is an illusion.
 
 ### Advanced Context (Collapsible)
 
 | Input | Range | Default | Meaning |
 | --- | --- | --- | --- |
-| Morale | 0–100 | 60 | Your current will to keep pushing. |
-| Ally Strength | 0–100 | 50 | Social, familial, or external support to sustain your existence. |
-| Resource Reserves | 0–100 | 50 | Stockpiled assets, energy, or wealth. |
-| Stamina / Sanity | 0–100 | 70 | Your physical and mental condition. |
-| Versatility | 0–100 | 50 | The capacity to adapt your current setup without ending it. |
-| World RNG Events | 0–100 | 50 | The volatility of external lucky/unlucky incidents. |
-| End Sensitivity | 0–100 | 50 | Your personal bias toward finality (Conservative $\to$ Aggressive). |
+| Morale | 0–100 | 60 | Current will to persist. |
+| Ally Strength | 0–100 | 50 | Social and external support. |
+| Resource Reserves | 0–100 | 50 | Accumulated assets, energy, and reserves. |
+| Stamina / Sanity | 0–100 | 70 | Physical and mental condition. |
+| Versatility | 0–100 | 50 | Capacity to adapt without ending. |
+| World RNG Events | 0–100 | 50 | External lucky/unlucky incidents. |
+| End Sensitivity | 0–100 | 50 | Personal bias toward finality (Conservative → Aggressive). |
 
 ---
 
@@ -153,9 +182,9 @@ Constants: `MAX_LEVEL = 82`, `TOP_MULTIPLIER = 0.07`, `RESILIENCE_SCALE = 10`, `
 
 | Verdict | Continuity Index | Meaning |
 | --- | --- | --- |
-| **Continue Existence** | `CI > 70` | Persist. Your current path remains your strongest course. Keep going. |
-| **Equilibrium** | `30 ≤ CI ≤ 70` | A balanced state. Either choice can be justified. Choose carefully. |
-| **Cessation Recommended** | `CI < 30` | The decay has won. Stagnation exceeds your optionality. Pull the plug and accept the end forever. |
+| **Continue Existence** | `CI > 70` | The projected experience favours continuation. The possibility cone supports persisting. |
+| **Equilibrium** | `30 ≤ CI ≤ 70` | The oracle cannot see clearly, or the projections are balanced. Either choice can be justified. |
+| **Cessation Recommended** | `CI < 30` | Projected suffering eclipses happiness and meaning across the visible horizon. Ending is the rational path. |
 
 ---
 
@@ -166,23 +195,24 @@ flowchart TD
     PAGE["app/page.tsx<br/>(state + useMemo metrics)"]
 
     PAGE --> CANVAS["three/SceneCanvas → three/Scene<br/>(drifting busts + particles)"]
-    PAGE --> CP["sections/ControlPanel<br/>(core + advanced sliders)"]
-    PAGE --> RD["sections/ResultsDashboard<br/>(verdict + breakdown)"]
+    PAGE --> CP["sections/ControlPanel<br/>(experience projection + visibility + advanced sliders)"]
+    PAGE --> RD["sections/ResultsDashboard<br/>(verdict + cone + breakdown)"]
     PAGE --> MODAL["ui/ConfidenceModal"]
     PAGE --> EXTRA["Navbar · Hero · OrbitField ·<br/>FloatingCards · LoreAccordion"]
 
     PAGE -. uses .-> HOOK["hooks/useSliderLogic<br/>(clamp + certainty cap)"]
     PAGE -. uses .-> CALC["lib/calculations<br/>(engine + verdict meta + colors)"]
     RD --> GAUGE["ui/GaugeMeter"]
+    RD --> CONE["PossibilityCone SVG"]
     CP -. inputs .-> CALC
     RD -. metrics .-> CALC
 ```
 
 Core Modules:
-* `src/lib/calculations.ts` — The mathematical engine, types, and color interpolations.
+* `src/lib/calculations.ts` — The mathematical engine: NES, EQI, Possibility Cones, and color interpolations.
 * `src/hooks/useSliderLogic.ts` — Boundary clamps and the certainty-cap validation.
-* `src/components/sections/ControlPanel.tsx` — Calibrating sliders and advanced context.
-* `src/components/sections/ResultsDashboard.tsx` — Live verdicts, gauge meter, and stat card breakdown.
+* `src/components/sections/ControlPanel.tsx` — Experience projection sliders, visibility, and advanced context.
+* `src/components/sections/ResultsDashboard.tsx` — Live verdicts, gauge meter, possibility cone SVG, and stat card breakdown.
 * `src/components/ui/GaugeMeter.tsx` — SVG circle animations driven by spring physics.
 * `src/components/three/Scene.tsx` — React Three Fiber scene containing the gaze-tracking busts.
 
@@ -221,4 +251,4 @@ sequenceDiagram
 
 ---
 
-*Terminus is an in-universe cessation decision oracle; all figures represent campaign design mechanics. Head sculpture asset: Lee Perry‑Smith (Infinite‑Realities) · CC BY 3.0.*
+*Terminus is an in-universe cessation decision oracle; all figures represent in-world mechanics. Head sculpture asset: Lee Perry‑Smith (Infinite‑Realities) · CC BY 3.0.*

@@ -42,7 +42,9 @@ export default function Hero() {
         variants={item}
         className="mt-5 max-w-xl text-lg leading-relaxed text-zinc-400 text-balance"
       >
-        Weigh the grinding, stagnant decay of your current run against the irreversible choice of ending it. There are no restarts, no second chances. Assess whether it is time to sever the thread.
+        Project the expected happiness, suffering, and meaning of the path
+        ahead — then let the oracle decide whether to continue or sever the
+        thread forever. There are no second chances.
       </motion.p>
 
       <motion.div variants={item} className="mt-9 flex flex-wrap items-center justify-center gap-3">

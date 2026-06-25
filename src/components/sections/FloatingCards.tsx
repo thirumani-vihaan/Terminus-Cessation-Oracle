@@ -17,7 +17,7 @@ interface FloatCard {
 const cards: FloatCard[] = [
   {
     quote:
-      "I held onto a decaying build until it was too late. I should have severed it at level 12.",
+      "My suffering forecast read 82. But the cone was wide — I couldn't see far enough to justify ending it.",
     who: "The Wanderer",
     pos: "left-2 top-[6%] xl:left-6",
     dur: 12,
@@ -26,7 +26,7 @@ const cards: FloatCard[] = [
     to: "#3f3f46",
   },
   {
-    quote: "The buffer said continue. I held the line and the playthrough turned.",
+    quote: "Expected meaning held at 71. The oracle said continue. I held the line.",
     who: "The Vanguard",
     pos: "right-2 top-[2%] xl:right-8",
     dur: 10,
@@ -35,7 +35,7 @@ const cards: FloatCard[] = [
     to: "#3f6f78",
   },
   {
-    quote: "High certainty is a trap — the model snapped me back to 0.90.",
+    quote: "High confidence is a trap — the model snapped all three forecasts back to 0.90.",
     who: "The Archivist",
     pos: "left-2 top-[60%] xl:left-10",
     dur: 13,
@@ -44,7 +44,7 @@ const cards: FloatCard[] = [
     to: "#4c3f78",
   },
   {
-    quote: "Continuity index read 22. I cut the cord, and let the run dissolve.",
+    quote: "Visibility horizon: 3 turns. The cone swallowed everything. Equilibrium was inevitable.",
     who: "The Strider",
     pos: "right-2 top-[64%] xl:right-6",
     dur: 11,

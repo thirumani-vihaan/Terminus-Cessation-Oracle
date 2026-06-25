@@ -19,7 +19,7 @@ const playfair = Playfair_Display({
 export const metadata: Metadata = {
   title: "Terminus — Cessation Oracle",
   description:
-    "A cessation decision oracle for the single-playthrough game. Weigh the projected stagnation of your current player run against the permanent finality of ending the game.",
+    "A cessation decision oracle. Project expected happiness, suffering, and meaning across the visible horizon — then decide whether to continue or sever the thread forever.",
 };
 
 export const viewport: Viewport = {

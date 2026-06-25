@@ -12,19 +12,19 @@ interface LoreItem {
 const items: LoreItem[] = [
   {
     q: "The premise",
-    a: "Every life replica run faces periods of grinding stagnation. This oracle assesses whether your current player's projected decay outweighs the finality of ending the playthrough forever. The longer you continue, the more unique moments you can experience — so your remaining runway matters as much as the immediate hardships.",
+    a: "Every existence reaches a crossroads where the path ahead becomes unclear. This oracle does not measure stagnation — it projects experience. By forecasting expected happiness, suffering, and meaning across the visible horizon, it quantifies whether the thread ahead is worth holding. Continuing is the default. But when the projected suffering eclipses all meaning, the oracle calculates whether it is time to sever the thread permanently.",
   },
   {
     q: "How the oracle thinks",
-    a: "We start from your remaining turns R = 82 − Level (or age) and a neutral prior T = R / 2. Your projected stagnation S is dampened by an uncertainty-decay factor and weighted by your confidence to produce the Effective Stagnation Weight (ESW). Choosing to end forever invokes an End Premium (EP) representing release, shifting the Dynamic End Threshold (DRT). The gap becomes your Continuity Index.",
+    a: "The engine begins with three dimensions of projected experience — happiness, suffering, and meaning — each weighted by your own confidence in that forecast. These combine into a Net Experience Score (NES) and normalise to an Experience Quality Index (EQI). Then your Future Visibility determines how far ahead you can reasonably see. Beyond that horizon, the Possibility Cone expands: high uncertainty pulls the verdict toward Equilibrium, because you cannot justify ending what you cannot see. The cone-adjusted EQI is weighed against the Dynamic End Threshold to produce the Continuity Index.",
   },
   {
     q: "Reading your verdict",
-    a: "A high Continuity Index means you should persist — Continue with the current player (the default choice). A middling Index sits in Equilibrium, where either staying or ending is valid. A low Index suggests that ending the run is the logical choice. There are no save states or second chances; once you end it, the character is gone forever.",
+    a: "A high Continuity Index means the projected experience ahead favours continuation — persist with the current path (the default choice). A middling Index sits in Equilibrium, often because the visibility horizon is too short to see clearly — either staying or ending can be justified. A low Index means projected suffering has overwhelmed happiness and meaning across the visible horizon. There are no second chances; once the thread is cut, the path ends forever.",
   },
   {
-    q: "Why an end premium?",
-    a: "Choosing to end a run is a heavy, permanent decision. The End Premium reflects the release from stagnation and scales with your remaining turns. When the remaining runway is long, the premium is higher, reflecting the weight of cutting off a long life path versus lingering in a decaying loop.",
+    q: "Why possibility cones?",
+    a: "The further you look into the future, the less certain you can be. The Possibility Cone models this fundamental truth. Within your visibility horizon, your forecasts carry weight. Beyond it, uncertainty expands rapidly — the cone widens, and the oracle cannot confidently recommend either continuation or cessation. This prevents premature endings when you simply cannot see far enough, and prevents false hope when the visible horizon is already dark.",
   },
 ];
 
