@@ -12,19 +12,19 @@ interface LoreItem {
 const items: LoreItem[] = [
   {
     q: "The premise",
-    a: "Every campaign faces uncertainty. This tool quantifies whether your current build's projected stagnation outweighs the potential of ending the game for a fresh one. The longer you can keep playing, the more chances there are for lucky drops and new strategies — so your remaining turns matter as much as the difficulty ahead.",
+    a: "Every life replica run faces periods of grinding stagnation. This oracle assesses whether your current player's projected decay outweighs the finality of ending the playthrough forever. The longer you continue, the more unique moments you can experience — so your remaining runway matters as much as the immediate hardships.",
   },
   {
-    q: "How the model thinks",
-    a: "We start from your remaining turns R = 82 − Level and a neutral 50/50 prior T = R / 2. Your projected stagnation S is dampened by an uncertainty-decay factor and weighted by your confidence to produce the Effective Stagnation Weight (ESW). A fresh start earns an End Premium (EP) for unseen synergies, raising the Dynamic End Threshold (DRT). The gap between them becomes your Continuity Index.",
+    q: "How the oracle thinks",
+    a: "We start from your remaining turns R = 82 − Level (or age) and a neutral prior T = R / 2. Your projected stagnation S is dampened by an uncertainty-decay factor and weighted by your confidence to produce the Effective Stagnation Weight (ESW). Choosing to end forever invokes an End Premium (EP) representing release, shifting the Dynamic End Threshold (DRT). The gap becomes your Continuity Index.",
   },
   {
     q: "Reading your verdict",
-    a: "A high Continuity Index means your current path is robust — Keep Campaign. A middling Index sits in Equilibrium, where uncertainty narrowly favours continuing. A low Index suggests ending the game might unlock higher expected rewards. The Continuity Index runs 0–100, with bands at 30 and 70.",
+    a: "A high Continuity Index means you should persist — Continue with the current player (the default choice). A middling Index sits in Equilibrium, where either staying or ending is valid. A low Index suggests that ending the run is the logical choice. There are no save states or second chances; once you end it, the character is gone forever.",
   },
   {
     q: "Why an end premium?",
-    a: "A brand-new build can exploit synergies you haven't discovered yet — serendipity. The End Premium scales with your remaining turns, because more turns mean more opportunities for a fresh strategy to pay off. It is a deliberate thumb on the scale in favour of bold reinvention when the runway is long.",
+    a: "Choosing to end a run is a heavy, permanent decision. The End Premium reflects the release from stagnation and scales with your remaining turns. When the remaining runway is long, the premium is higher, reflecting the weight of cutting off a long life path versus lingering in a decaying loop.",
   },
 ];
 
@@ -80,7 +80,7 @@ export default function LoreAccordion() {
           The Lore
         </span>
         <h2 className="mt-3 font-display text-4xl font-bold italic text-white sm:text-5xl">
-          The logic behind the save
+          The logic of cessation
         </h2>
       </motion.div>
 

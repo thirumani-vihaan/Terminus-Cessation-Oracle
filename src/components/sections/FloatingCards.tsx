@@ -26,7 +26,7 @@ const cards: FloatCard[] = [
     to: "#3f3f46",
   },
   {
-    quote: "The buffer said keep. I held the line and the campaign turned.",
+    quote: "The buffer said continue. I held the line and the playthrough turned.",
     who: "The Vanguard",
     pos: "right-2 top-[2%] xl:right-8",
     dur: 10,

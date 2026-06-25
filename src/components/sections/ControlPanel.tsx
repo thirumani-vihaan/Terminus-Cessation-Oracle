@@ -163,7 +163,7 @@ export default function ControlPanel({
             Input panel
           </h2>
           <p className="mt-1 text-xs uppercase tracking-[0.2em] text-zinc-500">
-            Calibrate your campaign
+            Calibrate your run
           </p>
         </div>
 
@@ -183,7 +183,7 @@ export default function ControlPanel({
       <div className="space-y-5">
         <SliderField
           label="Character Level"
-          hint="Your current level in the campaign. Higher levels reduce the remaining runway."
+          hint="Your current level/age in the playthrough. Higher levels reduce the remaining runway."
           value={level}
           display={`${Math.round(level)}`}
           min={1}
@@ -252,7 +252,7 @@ export default function ControlPanel({
                   <SliderField
                     label="Morale"
                     tooltip="Morale affects your character's current will to continue."
-                    hint="Current satisfaction with the campaign."
+                    hint="Current satisfaction with the playthrough."
                     value={morale}
                     display={`${morale.toFixed(0)}`}
                     min={0}
@@ -302,8 +302,8 @@ export default function ControlPanel({
                 <div className="space-y-4">
                   <SliderField
                     label="Build Versatility"
-                    tooltip="Versatility keeps a current build flexible when the campaign shifts."
-                    hint="Ability to pivot within the current build."
+                    tooltip="Versatility keeps a current player flexible when the run shifts."
+                    hint="Ability to pivot within the current player setup."
                     value={versatility}
                     display={`${versatility.toFixed(0)}`}
                     min={0}
@@ -314,7 +314,7 @@ export default function ControlPanel({
                   />
                   <SliderField
                     label="World RNG Events"
-                    tooltip="External lucky or unlucky events can dramatically alter the campaign path."
+                    tooltip="External lucky or unlucky events can dramatically alter the playthrough path."
                     hint="External lucky or unlucky events."
                     value={rngEvents}
                     display={`${rngEvents.toFixed(0)}`}
@@ -354,7 +354,7 @@ export default function ControlPanel({
           )}
         >
           <Play className="h-4 w-4 fill-black" />
-          Evaluate Campaign
+          Assess Cessation
         </button>
         <p className="text-center text-[0.7rem] text-zinc-600">
           Results update in real time; the button just refreshes the pulse.

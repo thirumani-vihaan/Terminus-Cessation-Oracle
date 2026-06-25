@@ -82,24 +82,24 @@ export const VERDICT_META: Record<
   { label: string; short: string; description: string; color: string }
 > = {
   Keep: {
-    label: "Keep Campaign",
-    short: "Keep",
+    label: "Continue Playthrough",
+    short: "Continue",
     description:
-      "Your current build is still the stronger expected path. The end-game buffer is comfortably intact.",
+      "Your current player run remains the stronger expected path. The finality buffer is comfortably intact.",
     color: "#22d3ee",
   },
   Equilibrium: {
     label: "Equilibrium — Hold Pattern",
     short: "Equilibrium",
     description:
-      "The model is balanced. You are close enough to the edge that either choice can be justified.",
+      "The oracle is balanced. You are close to the threshold where either continuing or ending forever can be justified.",
     color: "#facc15",
   },
   End: {
-    label: "End Game Recommended",
-    short: "End",
+    label: "Cessation Recommended",
+    short: "End Run",
     description:
-      "The projected stagnation is overtaking your available buffer. A new campaign is the safer bet.",
+      "The projected stagnation is overtaking your available buffer. Ending this playthrough forever is the safer bet.",
     color: "#fb7185",
   },
 };

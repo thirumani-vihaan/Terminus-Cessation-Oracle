@@ -162,7 +162,7 @@ export default function Home() {
               The Console
             </span>
             <h2 className="mt-3 font-display text-4xl font-bold italic text-white sm:text-5xl">
-              Evaluate your campaign
+              Consult the Oracle
             </h2>
           </div>
 
@@ -212,7 +212,7 @@ export default function Home() {
 
         <footer className="border-t border-white/8 px-6 py-10 text-center">
           <p className="text-xs text-zinc-600">
-            Terminus · a campaign cessation decision oracle. All figures are
+            Terminus · a cessation decision oracle. All figures are
             in-world game mechanics.
           </p>
           <p className="mt-2 text-[0.65rem] text-zinc-700">
